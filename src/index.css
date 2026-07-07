@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #0B1020;
+    color: #f1f5f9;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f1629;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #FF8A00;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ea7c00;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(15, 22, 41, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 138, 0, 0.15);
+  }
+
+  .glass-card {
+    background: rgba(20, 28, 53, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(20, 28, 53, 0.9);
+    border-color: rgba(255, 138, 0, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(255, 138, 0, 0.15);
+  }
+
+  .glow-saffron {
+    box-shadow: 0 0 20px rgba(255, 138, 0, 0.3), 0 0 40px rgba(255, 138, 0, 0.1);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px rgba(22, 199, 132, 0.3), 0 0 40px rgba(22, 199, 132, 0.1);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #FF8A00, #ea7c00);
+    color: white;
+    padding: 0.625rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #ea7c00, #c2640a);
+    box-shadow: 0 4px 20px rgba(255, 138, 0, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 138, 0, 0.1);
+    color: #FF8A00;
+    padding: 0.625rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 138, 0, 0.3);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 138, 0, 0.2);
+    border-color: rgba(255, 138, 0, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .input-field {
+    background: rgba(15, 22, 41, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    width: 100%;
+    outline: none;
+  }
+
+  .input-field:focus {
+    border-color: rgba(255, 138, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.1);
+  }
+
+  .input-field::placeholder {
+    color: rgba(241, 245, 249, 0.3);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #FF8A00, #16C784);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.025em;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(241, 245, 249, 0.6);
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .sidebar-link:hover {
+    color: #f1f5f9;
+    background: rgba(255, 138, 0, 0.1);
+  }
+
+  .sidebar-link.active {
+    color: #FF8A00;
+    background: rgba(255, 138, 0, 0.15);
+    border: 1px solid rgba(255, 138, 0, 0.2);
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .status-pending {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+
+  .status-in-progress {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .status-resolved {
+    background: rgba(22, 199, 132, 0.15);
+    color: #16C784;
+    border: 1px solid rgba(22, 199, 132, 0.3);
+  }
+
+  .status-rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
