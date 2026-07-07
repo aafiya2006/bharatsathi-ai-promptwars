@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Volume2, Send, Bot, Loader, StopCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Mic, MicOff, Volume2, Send, Bot, Loader } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
@@ -15,7 +15,7 @@ export default function VoiceAssistantPage() {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<Array<{ q: string; a: string }>>([]);
   const [selectedLang, setSelectedLang] = useState<Language>(language as Language);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const LANG_CODES: Record<Language, string> = {
@@ -24,7 +24,7 @@ export default function VoiceAssistantPage() {
   };
 
   function startListening() {
-    const SR = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
       alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.');
       return;
@@ -33,7 +33,7 @@ export default function VoiceAssistantPage() {
     rec.lang = LANG_CODES[selectedLang];
     rec.continuous = false;
     rec.interimResults = true;
-    rec.onresult = (e: SpeechRecognitionEvent) => {
+    rec.onresult = (e: any) => {
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) {

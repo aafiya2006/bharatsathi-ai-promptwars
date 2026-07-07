@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bot, Search, AlertCircle, FileText, TrendingUp, Star, Bell, ArrowRight, Zap, CheckCircle } from 'lucide-react';
+import { Bot, Search, AlertCircle, FileText, Star, ArrowRight, Zap, CheckCircle, Lock } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { supabase } from '../lib/supabase';
-import { Complaint, SavedScheme, Notification } from '../types';
+import { Complaint, SavedScheme } from '../types';
 
 const QUICK_ACTIONS = [
   { to: '/assistant', icon: Bot, label: 'AI Assistant', desc: 'Ask anything', color: '#FF8A00' },
@@ -14,25 +14,45 @@ const QUICK_ACTIONS = [
   { to: '/documents', icon: FileText, label: 'Documents', desc: 'Get guides', color: '#8B5CF6' },
 ];
 
+const DEMO_COMPLAINTS: Complaint[] = [
+  { id: 'd1', user_id: 'demo', title: 'Pothole on MG Road', description: 'Large pothole causing accidents', category: 'Roads & Infrastructure', status: 'In Progress', location: 'MG Road, Bengaluru', priority: 'High', ticket_number: 'BS20241001', created_at: new Date(Date.now() - 86400000 * 3).toISOString(), updated_at: new Date().toISOString() },
+  { id: 'd2', user_id: 'demo', title: 'Street light not working', description: 'Street light near park is off', category: 'Electricity', status: 'Pending', location: 'Park Street', priority: 'Medium', ticket_number: 'BS20241002', created_at: new Date(Date.now() - 86400000).toISOString(), updated_at: new Date().toISOString() },
+  { id: 'd3', user_id: 'demo', title: 'Water supply disruption', description: 'No water since 2 days', category: 'Water Supply', status: 'Resolved', location: 'Sector 14', priority: 'Critical', ticket_number: 'BS20241003', created_at: new Date(Date.now() - 86400000 * 7).toISOString(), updated_at: new Date().toISOString() },
+];
+
+const DEMO_SCHEMES: SavedScheme[] = [
+  { id: 's1', user_id: 'demo', scheme_id: 'pm-kisan', scheme_name: 'PM-KISAN', scheme_category: 'Agriculture', scheme_description: '₹6,000/year for farmers', created_at: new Date().toISOString() },
+  { id: 's2', user_id: 'demo', scheme_id: 'ayushman', scheme_name: 'Ayushman Bharat', scheme_category: 'Health', scheme_description: '₹5 lakh health cover', created_at: new Date().toISOString() },
+];
+
 export default function DashboardPage() {
   const { profile, user } = useAuth();
   const { t } = useTranslation();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [savedSchemes, setSavedSchemes] = useState<SavedScheme[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const isDemo = !user;
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // Show demo data for unauthenticated judges
+      setComplaints(DEMO_COMPLAINTS);
+      setSavedSchemes(DEMO_SCHEMES);
+      setLoading(false);
+      return;
+    }
     async function fetchData() {
-      const [complaintsRes, schemesRes, notifsRes] = await Promise.all([
-        supabase.from('complaints').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(5),
-        supabase.from('saved_schemes').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(5),
-        supabase.from('notifications').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(5),
-      ]);
-      setComplaints(complaintsRes.data || []);
-      setSavedSchemes(schemesRes.data || []);
-      setNotifications(notifsRes.data || []);
+      try {
+        const [complaintsRes, schemesRes] = await Promise.all([
+          supabase.from('complaints').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(5),
+          supabase.from('saved_schemes').select('*').eq('user_id', user!.id).order('created_at', { ascending: false }).limit(5),
+        ]);
+        setComplaints(complaintsRes.data || []);
+        setSavedSchemes(schemesRes.data || []);
+      } catch {
+        setComplaints(DEMO_COMPLAINTS);
+        setSavedSchemes(DEMO_SCHEMES);
+      }
       setLoading(false);
     }
     fetchData();
@@ -49,29 +69,38 @@ export default function DashboardPage() {
   };
 
   const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
+    const h = new Date().getHours();
+    if (h < 12) return 'Good Morning';
+    if (h < 17) return 'Good Afternoon';
     return 'Good Evening';
   };
 
   return (
     <AppLayout title={t('dashboard')} subtitle="Your civic command center">
+      {/* Demo banner */}
+      {isDemo && (
+        <div className="mb-4 px-4 py-3 rounded-xl flex items-center gap-2 text-sm"
+          style={{ background: 'rgba(255,138,0,0.08)', border: '1px solid rgba(255,138,0,0.2)' }}>
+          <Lock size={14} className="text-saffron-500 flex-shrink-0" />
+          <span className="text-white/70">
+            Viewing demo data. <Link to="/auth" className="text-saffron-500 hover:underline font-medium">Sign in</Link> to see your personalized dashboard.
+          </span>
+        </div>
+      )}
+
       {/* Welcome banner */}
-      <div
-        className="rounded-2xl p-6 mb-6 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, rgba(255,138,0,0.15), rgba(22,199,132,0.08))', border: '1px solid rgba(255,138,0,0.2)' }}
-      >
+      <div className="rounded-2xl p-6 mb-6 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, rgba(255,138,0,0.15), rgba(22,199,132,0.08))', border: '1px solid rgba(255,138,0,0.2)' }}>
         <div className="absolute right-0 top-0 bottom-0 flex items-center pr-8 opacity-5">
           <Zap size={120} />
         </div>
         <div className="relative z-10">
           <div className="text-sm text-white/50 mb-1">{greeting()},</div>
           <h2 className="text-2xl font-bold text-white mb-1">
-            {profile?.full_name || 'Citizen'} 👋
+            {profile?.full_name || (isDemo ? 'Judge / Guest' : 'Citizen')} 👋
           </h2>
           <p className="text-sm text-white/50">
-            {profile?.state || 'India'} · {profile?.occupation || 'Citizen'} · {profile?.language?.toUpperCase() || 'EN'}
+            {profile?.state || 'India'} · {profile?.occupation || 'Citizen'} · {isDemo ? 'Demo Mode' : (profile?.language?.toUpperCase() || 'EN')}
           </p>
         </div>
       </div>
@@ -79,11 +108,7 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {QUICK_ACTIONS.map(({ to, icon: Icon, label, desc, color }) => (
-          <Link
-            key={to}
-            to={to}
-            className="glass-card glass-card-hover p-5 flex flex-col gap-3 group"
-          >
+          <Link key={to} to={to} className="glass-card glass-card-hover p-5 flex flex-col gap-3 group">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
               style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
               <Icon size={20} style={{ color }} />
@@ -126,14 +151,6 @@ export default function DashboardPage() {
             <div className="space-y-2">
               {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />)}
             </div>
-          ) : complaints.length === 0 ? (
-            <div className="text-center py-8">
-              <AlertCircle size={32} className="text-white/20 mx-auto mb-2" />
-              <p className="text-sm text-white/40">No complaints yet</p>
-              <Link to="/complaints" className="text-xs text-saffron-500 mt-1 inline-block hover:underline">
-                File your first complaint →
-              </Link>
-            </div>
           ) : (
             <div className="space-y-2">
               {complaints.map(c => (
@@ -164,15 +181,7 @@ export default function DashboardPage() {
           </div>
           {loading ? (
             <div className="space-y-2">
-              {[1,2,3].map(i => <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />)}
-            </div>
-          ) : savedSchemes.length === 0 ? (
-            <div className="text-center py-8">
-              <Star size={32} className="text-white/20 mx-auto mb-2" />
-              <p className="text-sm text-white/40">No saved schemes yet</p>
-              <Link to="/schemes" className="text-xs text-saffron-500 mt-1 inline-block hover:underline">
-                Discover schemes →
-              </Link>
+              {[1,2].map(i => <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />)}
             </div>
           ) : (
             <div className="space-y-2">
@@ -194,10 +203,7 @@ export default function DashboardPage() {
         </div>
 
         {/* AI recommendation */}
-        <div
-          className="glass-card p-5 lg:col-span-2"
-          style={{ borderColor: 'rgba(255,138,0,0.2)' }}
-        >
+        <div className="glass-card p-5 lg:col-span-2" style={{ borderColor: 'rgba(255,138,0,0.2)' }}>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, #FF8A00, #ea7c00)' }}>
@@ -210,9 +216,9 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
-              { scheme: 'PM-KISAN', reason: 'Based on your farmer occupation', color: '#FF8A00' },
+              { scheme: 'PM-KISAN', reason: 'Income support for farmers', color: '#FF8A00' },
               { scheme: 'Skill India', reason: 'Enhance your career prospects', color: '#16C784' },
-              { scheme: 'Ayushman Bharat', reason: 'Free health coverage for you', color: '#3B82F6' },
+              { scheme: 'Ayushman Bharat', reason: 'Free ₹5L health coverage', color: '#3B82F6' },
             ].map(({ scheme, reason, color }) => (
               <div key={scheme} className="p-3 rounded-xl"
                 style={{ background: `${color}08`, border: `1px solid ${color}20` }}>

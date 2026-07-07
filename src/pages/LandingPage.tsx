@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Zap, Bot, Search, AlertCircle, FileText, Mic, Globe,
-  ArrowRight, Star, Users, Shield, ChevronDown, Check,
+  ArrowRight, Star, Users, Shield, ChevronDown,
 } from 'lucide-react';
 
 const FEATURES = [

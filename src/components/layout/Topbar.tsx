@@ -1,5 +1,5 @@
-import { ReactNode, useState } from 'react';
-import { Bell, Search, Globe, X } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, Globe, X, Menu } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { LANGUAGES } from '../../data/constants';
@@ -8,16 +8,19 @@ import { Language } from '../../types';
 interface TopbarProps {
   title: string;
   subtitle?: string;
+  onMenuClick?: () => void;
 }
 
-export default function Topbar({ title, subtitle }: TopbarProps) {
-  const { profile, updateProfile } = useAuth();
+export default function Topbar({ title, subtitle, onMenuClick }: TopbarProps) {
+  const { profile, user, updateProfile } = useAuth();
   const { language } = useTranslation();
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
 
   function handleLanguageChange(lang: Language) {
-    updateProfile({ language: lang });
+    if (user) {
+      updateProfile({ language: lang });
+    }
     setShowLangMenu(false);
   }
 
@@ -25,27 +28,36 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between"
+      className="sticky top-0 z-30 px-4 md:px-6 py-3 flex items-center justify-between"
       style={{
-        background: 'rgba(11, 16, 32, 0.85)',
+        background: 'rgba(11, 16, 32, 0.92)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255, 138, 0, 0.08)',
       }}
     >
-      <div>
-        <h1 className="text-xl font-bold text-white">{title}</h1>
-        {subtitle && <p className="text-xs text-white/50 mt-0.5">{subtitle}</p>}
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <Menu size={20} />
+        </button>
+        <div>
+          <h1 className="text-lg md:text-xl font-bold text-white leading-tight">{title}</h1>
+          {subtitle && <p className="text-xs text-white/50 hidden sm:block">{subtitle}</p>}
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 md:gap-2">
         {/* Language selector */}
         <div className="relative">
           <button
             onClick={() => { setShowLangMenu(!showLangMenu); setShowNotifs(false); }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-1.5 px-2 md:px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all"
           >
             <Globe size={15} />
-            <span className="hidden sm:block">{currentLang?.nativeName}</span>
+            <span className="hidden md:block">{currentLang?.nativeName}</span>
           </button>
           {showLangMenu && (
             <div
@@ -97,15 +109,22 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
                   <div className="text-xs font-medium text-emerald-500">New Scheme Available</div>
                   <div className="text-xs text-white/50 mt-0.5">PM Vishwakarma Yojana is now open for applications.</div>
                 </div>
+                <div className="p-3 rounded-lg" style={{ background: 'rgba(59,130,246,0.08)' }}>
+                  <div className="text-xs font-medium text-blue-400">Complaint Update</div>
+                  <div className="text-xs text-white/50 mt-0.5">Your demo complaint #BS12345 is In Progress.</div>
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-          style={{ background: 'linear-gradient(135deg, #FF8A00, #16C784)' }}>
-          {profile?.full_name?.[0]?.toUpperCase() || 'C'}
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer"
+          style={{ background: user ? 'linear-gradient(135deg, #FF8A00, #16C784)' : 'rgba(255,255,255,0.1)' }}
+          title={user ? (profile?.full_name || 'Account') : 'Guest'}
+        >
+          {user ? (profile?.full_name?.[0]?.toUpperCase() || 'C') : 'G'}
         </div>
       </div>
     </header>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Globe, Bell, Shield, Moon, Trash2, LogOut, ChevronRight, Save } from 'lucide-react';
+import { Globe, Bell, Shield, LogOut, ChevronRight, Save, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
@@ -7,15 +8,18 @@ import { LANGUAGES } from '../data/constants';
 import { Language } from '../types';
 
 export default function SettingsPage() {
-  const { profile, updateProfile, signOut } = useAuth();
+  const { user, updateProfile, signOut } = useAuth();
   const { t, language } = useTranslation();
   const [notifications, setNotifications] = useState(true);
   const [saved, setSaved] = useState(false);
+  const isDemo = !user;
 
   async function handleLangChange(lang: Language) {
-    await updateProfile({ language: lang });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    if (user) {
+      await updateProfile({ language: lang });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
   }
 
   const sections = [
@@ -105,6 +109,16 @@ export default function SettingsPage() {
   return (
     <AppLayout title={t('settings')} subtitle="App preferences and account settings">
       <div className="max-w-2xl mx-auto space-y-4">
+        {isDemo && (
+          <div className="px-4 py-3 rounded-xl flex items-center gap-2 text-sm"
+            style={{ background: 'rgba(255,138,0,0.08)', border: '1px solid rgba(255,138,0,0.2)' }}>
+            <Lock size={14} className="text-saffron-500 flex-shrink-0" />
+            <span className="text-white/70">
+              Settings are read-only in demo mode. <Link to="/auth" className="text-saffron-500 hover:underline font-medium">Sign in</Link> to save preferences.
+            </span>
+          </div>
+        )}
+
         {saved && (
           <div className="p-3 rounded-xl text-sm text-emerald-400 flex items-center gap-2"
             style={{ background: 'rgba(22,199,132,0.1)', border: '1px solid rgba(22,199,132,0.2)' }}>
@@ -129,17 +143,31 @@ export default function SettingsPage() {
         <div className="glass-card p-5">
           <h3 className="text-sm font-semibold text-white mb-4">Account</h3>
           <div className="space-y-2">
-            <button
-              onClick={signOut}
-              className="w-full flex items-center justify-between p-3 rounded-xl text-sm text-red-400 hover:bg-red-500/5 transition-colors"
-              style={{ border: '1px solid rgba(239,68,68,0.1)' }}
-            >
-              <div className="flex items-center gap-2">
-                <LogOut size={16} />
-                Sign Out
-              </div>
-              <ChevronRight size={14} />
-            </button>
+            {user ? (
+              <button
+                onClick={signOut}
+                className="w-full flex items-center justify-between p-3 rounded-xl text-sm text-red-400 hover:bg-red-500/5 transition-colors"
+                style={{ border: '1px solid rgba(239,68,68,0.1)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <LogOut size={16} />
+                  Sign Out
+                </div>
+                <ChevronRight size={14} />
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                className="w-full flex items-center justify-between p-3 rounded-xl text-sm text-saffron-500 hover:bg-saffron-500/5 transition-colors"
+                style={{ border: '1px solid rgba(255,138,0,0.15)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Lock size={16} />
+                  Sign in to unlock all features
+                </div>
+                <ChevronRight size={14} />
+              </Link>
+            )}
           </div>
         </div>
 
